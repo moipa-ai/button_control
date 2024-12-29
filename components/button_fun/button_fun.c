@@ -9,7 +9,10 @@
 #define BUTTON_ACTIVE_LEVEL 1
 
 static const char *TAG = "button_power_save";
-TaskHandle_t led_ss_Handle = NULL;
+//初始化全局变量
+TaskHandle_t led_open_Handle=NULL;
+TaskHandle_t led_ss_Handle=NULL;
+TaskHandle_t led_close_Handle = NULL;
 
 static void button_event_cb(void *arg, void *data)
 {
@@ -19,33 +22,33 @@ static void button_event_cb(void *arg, void *data)
     {
 
         ESP_LOGI(TAG, "Button event: BUTTON_SINGLE_CLICK");
-        // xTaskCreatePinnedToCore(led_run_open_task, "led_open", 2048, &led_ss_Handle, 3, NULL, 0);
-        if (led_ss_Handle != NULL)
-        {
-            // 先暂停任务在删除任务
-            vTaskSuspend(led_ss_Handle);
-            vTaskDelete(led_ss_Handle);
-            led_ss_Handle = NULL;
-        }
-        gpio_set_level(18, 1);
+        xTaskCreatePinnedToCore(led_run_open_task, "led_open", 2048, NULL, 3, &led_open_Handle, 0);
+        // if (led_ss_Handle != NULL)
+        // {
+        //     // 先暂停任务在删除任务
+        //     vTaskSuspend(led_ss_Handle);
+        //     vTaskDelete(led_ss_Handle);
+        //     led_ss_Handle = NULL;
+        // }
+        // gpio_set_level(18, 1);
     }
 
     else if (req_data == BUTTON_DOUBLE_CLICK)
     {
         ESP_LOGI(TAG, "Button event: BUTTON_DOUBLE_CLICK ");
-        xTaskCreatePinnedToCore(led_run_task, "led_ss", 2048, 18, 3, &led_ss_Handle, 0);
+        xTaskCreatePinnedToCore(led_run_task, "led_ss", 2048,NULL, 3, &led_ss_Handle, 0);
     }
 
     else if (req_data == BUTTON_LONG_PRESS_START)
     {
 
         ESP_LOGI(TAG, "Button event: BUTTON_LONG_PRESS_START");
-        // xTaskCreatePinnedToCore(led_run_close_task, "led_close", 2048, 18, 3, NULL, 0);
+        xTaskCreatePinnedToCore(led_run_close_task, "led_close", 2048, NULL, 3, &led_close_Handle, 0);
         // 先暂停任务在删除任务
-        vTaskSuspend(led_ss_Handle);
-        vTaskDelete(led_ss_Handle);
-        led_ss_Handle = NULL;
-        gpio_set_level(18, 0);
+        // vTaskSuspend(led_ss_Handle);
+        // vTaskDelete(led_ss_Handle);
+        // led_ss_Handle = NULL;
+        // gpio_set_level(18, 0);
     }
 }
 
